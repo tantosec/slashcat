@@ -1,0 +1,2 @@
+# This requirements file is just for local development and is not used in Docker
+coverage==7.4.4

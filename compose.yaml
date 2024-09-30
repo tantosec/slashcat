@@ -1,0 +1,52 @@
+services:
+  slackbot:
+    build: ./slackbot
+    environment:
+      - SQLITE_PATH=/db/sqlite.db
+      - WORKER_URL=http://worker:8000
+    env_file:
+      - ./prod.env
+    volumes:
+      - ./data/db:/db
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f http://localhost:3000/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+  worker:
+    build:
+      context: ./worker
+      args:
+        - WORKER_BASE=dizcza/docker-hashcat:cuda
+    volumes:
+      - ./data/wordlists:/wordlists:ro
+      - ./data/rules:/rules:ro
+      - ./data/maskfiles:/maskfiles:ro
+    environment:
+      - STORAGE_DIR=/storage
+      - RULES_DIR=/rules
+      - WORDLISTS_DIR=/wordlists
+      - MASKFILES_DIR=/maskfiles
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f http://localhost:8000/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+  autoheal:
+    restart: unless-stopped
+    image: willfarrell/autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

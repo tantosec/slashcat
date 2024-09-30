@@ -1,0 +1,20 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install requirements
+        run: for p in . slackbot worker; do python -m pip install -r "$p/requirements.txt"; done
+      - name: Run tests
+        run: ./scripts/test.sh

@@ -1,0 +1,26 @@
+__pycache__/
+
+.venv/
+
+.env
+prod.env
+
+# Prevent saving workspace preferences
+.vscode/
+
+# My temporary files
+tmp/
+
+# Docker wordlists + rules
+/data/
+
+# Temporary files
+worker/storage/
+
+.terraform*
+*.tfstate*
+*.key
+**/certs/*
+
+.coverage
+htmlcov/
